@@ -18,6 +18,7 @@
 //para usar typescript, precisamos de um config file. Para tal, usamos o comando:
 //npx tsc --init
 
+//npm install -g ts-node
 //para q atualize automaticamente toda vez que fizermos alteração, basta colocarmos no start:
 // "start":"tsc --watch"
 

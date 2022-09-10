@@ -3,6 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  binaryTargets = ["native"]
 }
 
 datasource db {
@@ -13,5 +14,15 @@ model user_data{
   id    Int    @id @default(autoincrement())
   email String @unique 
   password String 
-  created_at DateTime @default(now())
+  created_at DateTime @default(now()) @db.Timestamp(6)
 }
+
+model credentials{
+  id Int    @id @default(autoincrement())
+  title String
+  url String
+  user String
+  password String
+  created_at DateTime @default(now()) @db.Timestamp(6)
+}
+
