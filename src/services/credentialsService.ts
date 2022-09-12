@@ -1,31 +1,67 @@
-import Cryptr from 'cryptr'
-import cryptr from 'cryptr'
-import * as credentialsRepository from '../repositories/credentialRepository'
-export async function verifyDuplicatedTitle(id:number,title:string) {
-    const isTitleDuplicated = await credentialsRepository.findDuplicatedTitle(id,title)
-    console.log(isTitleDuplicated)
-    if(isTitleDuplicated){
-        throw { type: "conflict", message: "titulo já cadastrado" }
+import Cryptr from "cryptr";
+import { CreateCredentialData, credentialRepository } from "../repositories/credentialRepository.js"
+
+const cryptr = new Cryptr(process.env.CRYPT_SECRET_KEY ?? '');
+
+async function insertCredential(credentialData: CreateCredentialData, userId: number) {
+
+    const isTitleRegitered = await credentialRepository.checkUniqueTitle(credentialData, userId);
+    if(isTitleRegitered){
+        throw {
+            type: "conflict",
+            message: "Title already registered"
+        }
+    }
+
+    const password = credentialData.password;
+    
+    const credentials = await credentialRepository.insertCredential({...credentialData, password: cryptr.encrypt(password)}, userId)
+
+    return credentials
+    
+}
+
+async function getAllCredentials(userId: number){
+    let credentials = await credentialRepository.getAllCredentials(userId);
+
+    credentials = credentials.map(credential => {
+        return {...credential, password: cryptr.decrypt(credential.password)}
+    })    
+
+    return credentials
+}
+
+async function getCredentialById(credentialId: number) {
+    let credential = await credentialRepository.getCredentialById(credentialId)
+
+    if(!credential){
+        throw{
+            type: "not_found",
+            message: "Credential not found"
+        }
+    }
+
+    credential = {...credential, password: cryptr.decrypt(credential.password)}
+
+    return credential
+}
+
+async function deleteCredentialById(credentialId: number) {
+    
+    const credential = await credentialRepository.deleteCredentialById(credentialId);
+
+    if(!credential){
+        throw{
+            type: "not_found",
+            message: "Credential not found"
+        }
     }
 }
 
-export async function insertCredential(userId:number,title:string, url:string, user:string, password:string) {
-    let insert;
-    const Cryptr = new cryptr('myTotallySecretKey');
-    const encriptedPassword = Cryptr.encrypt(password);
-    console.log(encriptedPassword)
- 
-    if(encriptedPassword){
-        insert = await credentialsRepository.insertCredential(userId,title, url, user, encriptedPassword)
-    }
-   
-}
 
-export async function getCredentials(userId:number) {
-    const credentials = await credentialsRepository.getCredentials(userId);
-    console.log(credentials);
-
-    const Cryptr = new cryptr('myTotallySecretKey');
-    const credentialsWithDecryptedPassword = credentials?.map((credential)=>credential.password=Cryptr.decrypt(credential.password))
-    return credentialsWithDecryptedPassword;
+export const credentialsService = {
+    insertCredential,
+    getAllCredentials,
+    getCredentialById,
+    deleteCredentialById
 }

@@ -3,3 +3,11 @@ export interface Iuser_data_login{
     email:string,
     password:string
 }
+
+
+export interface Icredential{
+    title: number,
+    url:String
+    user_name:string,
+    password:string
+}

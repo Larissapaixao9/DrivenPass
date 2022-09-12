@@ -1,9 +1,18 @@
-import { validateSchemaMiddleware } from "../middlewares/validateSchema";
-import {credentialSchema} from '../schemas/credential_schema'
-import { postCredential, getCredentials } from '../controllers/credentialsController'
-import express from "express";
+import {Router} from "express";
+import { deleteCredentialById, getCredentials, getCredentialsById, insertCredential } from '../controllers/credentialsController.js';
+import { validateIdParams } from '../middlewares/ idParamsValidator.js'
+import { schemaValidator } from "../middlewares/schemaValidator.js";
+import { validateToken } from '../middlewares/tokenValidatorMIddleware.js'
+import { credentialSchema } from "../schemas/credential_schema.js";
 
-const router = express.Router()
+const credentialsRouter = Router();
 
-router.post('/createCredential',validateSchemaMiddleware(credentialSchema),postCredential);
-router.get('/getCredentials',getCredentials)
+credentialsRouter.post("/credentials", schemaValidator(credentialSchema), validateToken, insertCredential);
+
+credentialsRouter.get("/credentials", validateToken, getCredentials);
+
+credentialsRouter.get("/credentials/:id", validateToken, validateIdParams, getCredentialsById);
+
+credentialsRouter.delete("/credentials/:id", validateToken, validateIdParams, deleteCredentialById);
+
+export default credentialsRouter

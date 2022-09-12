@@ -1,24 +1,56 @@
-import prisma from "../database/database"
-export async function findDuplicatedTitle(id:number, title:string) {
-    const duplicatedTitle = await prisma.credentials.findFirst({where:{
-        id,
-        title
-    }})
-    return duplicatedTitle
+import prisma from "../database/database.js";
+import { Credential } from "@prisma/client";
+
+export type CreateCredentialData = Omit<Credential, "id" | "create_at"| "user_id">
+
+async function insertCredential(credentialData: CreateCredentialData, userId: number){
+    const credentials = await prisma.credential.create({data: {...credentialData, user_id: userId}});
+
+    return credentials
 }
 
-export async function insertCredential(userId:number,title:string, url:string, user:string, cryptedPassword:string) {
-    const response = await prisma.credentials.create({data:{
-        "title":title,
-        "url":url,
-        "user":user,
-        "password":cryptedPassword
+async function checkUniqueTitle(credentialData: CreateCredentialData, userId: number) {
+    const titleRegitered = await prisma.credential.findFirst({where: {
+        title: {
+            contains: credentialData.title, 
+            mode: 'insensitive'
+        }, 
+        user_id: userId
     }})
-    return response;
+
+    return titleRegitered
 }
 
-export async function getCredentials(userId:number) {
-    const response = await prisma.credentials.findMany({where:{id:userId}});
-    return response
-    
+async function getAllCredentials( userId: number) {
+    const credentials = await prisma.credential.findMany({
+        where:{
+            user_id: userId
+        }
+    })
+
+    return credentials
+}
+
+async function getCredentialById(credentialId: number) {
+    const credential = await prisma.credential.findUnique({where:
+        {id: credentialId}
+    })
+
+    return credential
+}
+
+async function deleteCredentialById(credentialId: number) {
+    const credential = await prisma.credential.delete({where:{
+        id: credentialId
+    }})
+
+    return credential
+}
+
+export const credentialRepository = {
+    insertCredential,
+    checkUniqueTitle,
+    getAllCredentials,
+    getCredentialById,
+    deleteCredentialById
 }

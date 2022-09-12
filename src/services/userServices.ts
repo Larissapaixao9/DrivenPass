@@ -1,8 +1,10 @@
 import { prisma } from '@prisma/client';
 import bcrypt from 'bcrypt'
 import * as userRepository from '../repositories/userRepository'
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv'
 
-
+dotenv.config()
 
 export async function findDuplicatedEmail(email:string) {
     const isUser = await userRepository.findDuplicatedEmail(email);
@@ -51,6 +53,39 @@ export async function verifyPassword(email:string,password:string) {
     if(verifyuserPassword==false){
         throw {type: "not_found", message: "senha ou email incorreto"}
     }
-    console.log(isUser)
+    console.log(`esse é o isUser: ${isUser}`)
+
+    const SECRET: string = process.env.JWT_SECRET_KEY ?? '';
+    const EXPIRES_IN = process.env.TOKEN_EXPIRES_IN;
+    const payload = {
+        id: 1,
+        email: email
+      };
+      const jwtConfig = {
+        expiresIn: EXPIRES_IN
+      };
+      const token = jwt.sign(payload, SECRET, jwtConfig);
+
+    // const secretKey = process.env.JWT_SECRET_KEY ;
+    // const token = jwt.sign(
+    //     id:isUser.id,
+    //     secret:secretKey
+    // )
+    // console.log(secretKey)
+    // const token = jwt.sign({},process.env.JWT_SECRET_KEY || "secret_key",{
+    //     subject:isUser.id.toString(),
+    //     expiresIn:"20s"
+    // })
+    await userRepository.startSession(isUser.id,token);
+    console.log(`O TOKEN É ${token}`)
+    return {token};
 }
+
+async function logOut(sessionId: number) {
+    console.log(sessionId)
+    const logOutSession = await userRepository.finishSession(sessionId)
+
+    return logOutSession
+}
+
 
