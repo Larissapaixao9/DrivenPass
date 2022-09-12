@@ -20,7 +20,7 @@ export async function insertCredential(req: Request, res: Response){
 }
 
 export async function getCredentials(req: Request, res: Response) {
-    //TODO: TESTAR AO INSERIR MAIS DE UM USUÁRIO
+    
     const userId = res.locals.userInfo.userId;
 
     const credentials = await credentialsService.getAllCredentials(userId)
@@ -29,7 +29,6 @@ export async function getCredentials(req: Request, res: Response) {
 }
 
 export async function getCredentialsById(req: Request, res: Response) {
-      //TODO: TESTAR AO INSERIR MAIS DE UM USUÁRIO
         const {id} = res.locals.id;
         const userId = res.locals.userInfo.userId;
 
@@ -41,7 +40,6 @@ export async function getCredentialsById(req: Request, res: Response) {
 }
 
 export async function deleteCredentialById(req: Request, res: Response) {
-
     const {id} = res.locals.id;
     const userId = res.locals.userInfo.userId;
 

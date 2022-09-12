@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import dotenv from "dotenv";
-
 import { checkUserAuthorization } from "../utils/checkUserAuthorizationById.js";
 import { CreateWifiData } from "../repositories/wifiRepository.js";
 import { wifiService } from "../services/wifiServices.js";
@@ -8,9 +7,7 @@ import { wifiService } from "../services/wifiServices.js";
 dotenv.config();
 
 export async function insertWifi(req: Request, res: Response){
-    
     const userId = res.locals.userInfo.userId;
-
     const wifiData: CreateWifiData = req.body;
 
     const wifi = await wifiService.insertWifi(wifiData, userId);

@@ -7,7 +7,6 @@ import { checkUserAuthorization } from "../utils/checkUserAuthorizationById.js";
 dotenv.config();
 
 export async function insertNote(req: Request, res: Response){
-    
     const userId = res.locals.userInfo.userId;
 
     const noteData: CreateNoteData = req.body;
@@ -19,7 +18,6 @@ export async function insertNote(req: Request, res: Response){
 }
 
 export async function getNotes(req: Request, res: Response) {
-    //TODO: TESTAR AO INSERIR MAIS DE UM USUÁRIO
     const userId = res.locals.userInfo.userId;
 
     const notes = await safeNotesService.getAllNotes(userId)
@@ -28,7 +26,6 @@ export async function getNotes(req: Request, res: Response) {
 }
 
 export async function getNotesById(req: Request, res: Response) {
-      //TODO: TESTAR AO INSERIR MAIS DE UM USUÁRIO
         const {id} = res.locals.id;
         const userId = res.locals.userInfo.userId;
 
@@ -40,7 +37,6 @@ export async function getNotesById(req: Request, res: Response) {
 }
 
 export async function deleteNoteById(req: Request, res: Response) {
-
     const {id} = res.locals.id;
     const userId = res.locals.userInfo.userId;
 
